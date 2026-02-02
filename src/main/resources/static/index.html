@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cocktail Cloud | Cloud-Native Demo</title>
+    <title>Cocktail Cloud | K8s Demo</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fonts -->
@@ -15,21 +15,16 @@
             overflow: hidden;
             transition: background 0.5s ease;
         }
-
-        /* 클라우드 느낌의 동적인 배경 */
         .cloud-bg {
             background: linear-gradient(120deg, #e0f2fe 0%, #f0f9ff 50%, #dbeafe 100%);
             background-size: 200% 200%;
             animation: gradientBG 15s ease infinite;
         }
-
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
-        /* 유리 효과 (Glassmorphism) */
         .glass {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(16px);
@@ -37,18 +32,14 @@
             border: 1px solid rgba(255, 255, 255, 0.4);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
-
-        /* 둥실둥실 떠있는 애니메이션 */
         .floating {
             animation: floating 6s ease-in-out infinite;
         }
-
         @keyframes floating {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-15px); }
             100% { transform: translateY(0px); }
         }
-
         .dark-mode {
             background: linear-gradient(120deg, #0f172a 0%, #1e293b 100%) !important;
         }
@@ -56,143 +47,128 @@
 </head>
 <body class="cloud-bg min-h-screen flex items-center justify-center p-4">
 
-    <!-- Toast Notification -->
     <div id="toast" class="fixed top-8 left-1/2 -translate-x-1/2 px-8 py-3 bg-white/90 text-blue-600 text-sm font-bold rounded-full shadow-lg opacity-0 transition-all duration-500 z-50 border border-blue-100">
         Message
     </div>
 
-    <!-- Main Card -->
     <div id="main-card" class="glass floating w-full max-w-xl p-10 md:p-14 rounded-[3rem] text-center transition-all duration-500">
         
-        <!-- Logo -->
         <div class="mb-10 flex justify-center">
             <div class="bg-white/50 p-4 rounded-3xl shadow-sm border border-white/50">
                 <img src="./images/cocktail-log.jpg" alt="Cocktail Logo" class="max-w-[220px] h-auto" onerror="this.src='https://via.placeholder.com/220x60/3b82f6/ffffff?text=COCKTAIL+CLOUD'">
             </div>
         </div>
 
-        <!-- Hero Text -->
         <div class="space-y-4 mb-12">
-            <h1 id="hero-title" class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-800 cursor-pointer hover:scale-105 transition-transform duration-300">
+            <h1 id="hero-title" class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-800 cursor-pointer hover:scale-105 transition-transform duration-300 leading-tight">
                 Enterprise Kubernetes <br/>
                 <span class="text-blue-600">Management Platform</span>
             </h1>
         </div>
 
-        <!-- K8s Dash Section -->
         <div class="space-y-4 mb-10">
             <div class="flex items-center justify-between px-2 mb-2">
                 <span class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Environment Status</span>
-                <span id="data-status" class="flex items-center gap-1.5 text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-bold">
-                    <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
-                    SIMULATED
+                <span id="data-status" class="flex items-center gap-1.5 text-[10px] bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full font-bold">
+                    <span id="status-dot" class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
+                    <span id="status-text">DISCONNECTED</span>
                 </span>
             </div>
 
-            <!-- Pod Hostname Info -->
+            <!-- Pod Hostname -->
             <div class="bg-white/40 p-5 rounded-2xl border border-white/50 text-left group hover:bg-white/60 transition-colors shadow-sm">
                 <div class="flex items-center gap-2 mb-1.5">
                     <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase">Pod Hostname</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pod Hostname</span>
                 </div>
-                <code id="pod-name" class="block text-sm font-mono font-bold text-slate-700 tracking-tight">Initializing...</code>
+                <code id="pod-name" class="block text-sm font-mono font-bold text-slate-400 italic">Waiting for API connection...</code>
             </div>
 
-            <!-- Pod IP Info -->
+            <!-- Pod IP -->
             <div class="bg-white/40 p-5 rounded-2xl border border-white/50 text-left group hover:bg-white/60 transition-colors shadow-sm">
                 <div class="flex items-center gap-2 mb-1.5">
                     <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase">Internal Network Address</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Internal Network Address</span>
                 </div>
-                <code id="pod-ip" class="block text-sm font-mono font-bold text-slate-700 tracking-tight">Checking...</code>
+                <code id="pod-ip" class="block text-sm font-mono font-bold text-slate-400 italic tracking-tight">Checking status...</code>
             </div>
         </div>
 
-        <!-- Controls -->
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <button onclick="changeTheme('black', 'Dark Mode')" 
+            <button onclick="changeTheme('black', 'Night View')" 
                     class="px-10 py-3.5 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-900 transition-all active:scale-95 text-xs shadow-xl uppercase tracking-widest">
                 Night View
             </button>
-            <button onclick="changeTheme('white', 'Light Mode')" 
+            <button onclick="changeTheme('white', 'Day View')" 
                     class="px-10 py-3.5 bg-white text-slate-800 border border-slate-100 rounded-2xl font-bold hover:bg-slate-50 transition-all active:scale-95 text-xs shadow-md uppercase tracking-widest">
                 Day View
             </button>
         </div>
 
-        <p class="mt-14 text-[11px] text-slate-400 font-medium tracking-wide">
+        <p class="mt-14 text-[11px] text-slate-300 font-bold tracking-widest">
             &copy; 2026 ACORNSOFT. POWERED BY COCKTAIL CLOUD.
         </p>
     </div>
 
     <script>
-        // 1. Interactive Elements
         document.getElementById('hero-title').addEventListener('click', function() {
-            this.style.color = '#ef4444'; // Red change
+            this.style.color = '#ef4444'; 
             showToast("Primary color modified");
         });
 
-        // 2. Theme Switching
         function changeTheme(theme, label) {
             const body = document.body;
             const card = document.getElementById('main-card');
-            const h1 = document.getElementById('hero-title');
-            
             showToast(`Applied ${label}`);
-
             if (theme === 'black') {
                 body.classList.add('dark-mode');
                 card.style.background = 'rgba(15, 23, 42, 0.85)';
-                card.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                h1.style.color = '#f8fafc';
+                card.style.color = '#f8fafc';
             } else {
                 body.classList.remove('dark-mode');
                 card.style.background = 'rgba(255, 255, 255, 0.7)';
-                card.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                h1.style.color = '#1e293b';
+                card.style.color = '#1e293b';
             }
         }
 
-        // 3. Simple Toast
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.style.opacity = '1';
             toast.style.transform = 'translate(-50%, 10px)';
-            
             setTimeout(() => {
                 toast.style.opacity = '0';
                 toast.style.transform = 'translate(-50%, 0)';
             }, 2000);
         }
 
-        // 4. Kubernetes Data Logic
         async function loadK8sData() {
             const nameEl = document.getElementById('pod-name');
             const ipEl = document.getElementById('pod-ip');
             const statusBadge = document.getElementById('data-status');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
 
             try {
-                // Try to fetch real info from Java Backend
+                // Java Backend API 호출 시도
                 const response = await fetch('/api/info');
                 if (response.ok) {
                     const data = await response.json();
                     nameEl.innerText = data.podName;
                     ipEl.innerText = data.ip;
-                    statusBadge.innerText = "ACTIVE POD";
+                    
+                    nameEl.className = "block text-sm font-mono font-bold text-slate-700 tracking-tight";
+                    ipEl.className = "block text-sm font-mono font-bold text-slate-700 tracking-tight";
                     statusBadge.className = "flex items-center gap-1.5 text-[10px] bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-bold";
-                } else {
-                    throw new Error("Local Demo");
+                    statusDot.className = "w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse";
+                    statusText.innerText = "ACTIVE POD";
                 }
             } catch (err) {
-                // Generate consistent but randomized mock data for demo
-                const mockHost = "cocktail-v2-deployment-78bc9d-8x2n";
-                const mockIp = "172.30.44.12";
-                
-                nameEl.innerText = mockHost;
-                ipEl.innerText = mockIp;
-                
-                console.log("Running in simulation mode. Connect to backend API for real K8s data.");
+                // API가 없을 경우 (로컬 브라우저 등) 가짜 데이터를 더 이상 표시하지 않음
+                console.warn("Could not reach API. Standing by...");
+                nameEl.innerText = "API Connection Required (Offline)";
+                ipEl.innerText = "Check Java Backend Controller";
+                statusText.innerText = "OFFLINE";
             }
         }
 
