@@ -1,9 +1,19 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.net.InetAddress" %>
 <%
-    String hostname = InetAddress.getLocalHost().getHostName();
-    String ip = InetAddress.getLocalHost().getHostAddress();
+    // 1. 시스템 환경변수(Kubernetes Downward API)에서 먼저 확인
+    // 2. 없으면 Java 네트워크 라이브러리로 직접 추출
+    String podName = System.getenv("POD_NAME");
+    if (podName == null) podName = InetAddress.getLocalHost().getHostName();
+    
+    String podIp = System.getenv("POD_IP");
+    if (podIp == null) podIp = InetAddress.getLocalHost().getHostAddress();
+
+    // 값을 index.html에서 쓸 수 있도록 request 객체에 담아서 넘깁니다.
+    request.setAttribute("hostname", podName);
+    request.setAttribute("ip", podIp);
 %>
+<jsp:forward page="index.html" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
