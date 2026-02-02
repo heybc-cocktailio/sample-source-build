@@ -3,126 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cocktail Cloud | Demo Dashboard</title>
+    <title>COCKTAIL.IO | Test Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap');
+
         :root {
-            --cocktail-blue: #3b82f6;
-            --cocktail-dark: #0f172a;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg-dark: #030712;
         }
+
         body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: var(--cocktail-dark);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 40%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
             color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+        /* 배경 아우라 애니메이션 */
+        .aura-container {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #030712 100%);
         }
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .scanline {
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(to right, transparent, var(--cocktail-blue), transparent);
-            opacity: 0.3;
+
+        .aura-blob {
             position: absolute;
-            animation: scan 3s linear infinite;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: move 20s infinite alternate;
         }
-        @keyframes scan {
-            0% { top: 0%; }
-            100% { top: 100%; }
+
+        .blob-1 { width: 500px; height: 500px; background: #3b82f6; top: -100px; left: -100px; }
+        .blob-2 { width: 400px; height: 400px; background: #818cf8; bottom: -50px; right: -50px; animation-delay: -5s; }
+        .blob-3 { width: 300px; height: 300px; background: #2dd4bf; top: 40%; left: 30%; animation-delay: -10s; }
+
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(100px, 50px) scale(1.2); }
         }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .module-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+
+        .module-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .module-card.active {
+            border-color: rgba(59, 130, 246, 0.6);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .progress-track {
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: var(--primary);
+            transition: width 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4b5563;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot.active-blue { background: #3b82f6; box-shadow: 0 0 12px #3b82f6; }
+        .status-dot.active-emerald { background: #10b981; box-shadow: 0 0 12px #10b981; }
+
+        .mono { font-family: 'Space Grotesk', monospace; font-size: 11px; }
     </style>
 </head>
 <body>
-    <div class="glass-panel w-full max-w-xl p-8 md:p-12 relative overflow-hidden">
-        <div class="scanline"></div>
-        
-        <!-- Header -->
-        <header class="text-center mb-10 relative z-10">
-            <div class="inline-block p-4 rounded-2xl bg-blue-500/10 mb-6 border border-blue-500/20">
-                <svg class="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                </svg>
-            </div>
-            <h1 class="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-300">
-                Cocktail Cloud
-            </h1>
-            <p class="text-blue-300/60 mt-2 font-light tracking-widest uppercase text-xs">
-                Cloud Native Workload Dashboard
-            </p>
-        </header>
 
-        <!-- Main Info Section -->
-        <div class="space-y-6 relative z-10">
-            <!-- Hostname Card -->
-            <div class="group bg-slate-900/40 rounded-2xl p-6 border border-white/5 hover:border-blue-500/30 transition-all duration-300">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-blue-400/80 text-[10px] uppercase font-bold tracking-widest">Pod Hostname</span>
-                    <span class="flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <div class="mono text-xl md:text-2xl font-semibold text-white truncate w-full">
-                        <!-- JSP forward 시 전달받은 hostname 값 출력 -->
-                        ${hostname != null ? hostname : "detecting-host..."}
+    <div class="aura-container">
+        <div class="aura-blob blob-1"></div>
+        <div class="aura-blob blob-2"></div>
+        <div class="aura-blob blob-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-lg px-6">
+        <div class="glass-panel rounded-3xl p-10 overflow-hidden relative">
+            
+            <!-- 헤더 -->
+            <div class="flex items-center justify-between mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                        <span class="text-[9px] font-bold tracking-[0.2em] text-blue-400 uppercase">Test Mode Active</span>
                     </div>
+                    <h1 class="text-4xl font-extrabold tracking-tighter">
+                        COCKTAIL<span class="text-blue-500">.IO</span>
+                    </h1>
                 </div>
             </div>
 
-            <!-- IP Card -->
-            <div class="group bg-slate-900/40 rounded-2xl p-6 border border-white/5 hover:border-emerald-500/30 transition-all duration-300">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-emerald-400/80 text-[10px] uppercase font-bold tracking-widest">Internal IP Address</span>
-                    <span class="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <div class="mono text-xl md:text-2xl font-semibold text-white tracking-wider">
-                        <!-- JSP forward 시 전달받은 ip 값 출력 -->
-                        ${ip != null ? ip : "0.0.0.0"}
+            <!-- 테스트 모듈 -->
+            <div class="space-y-4">
+                
+                <!-- 테스트 01 -->
+                <div id="module1" class="module-card p-6 rounded-2xl group">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-3">
+                            <div id="dot1" class="status-dot"></div>
+                            <h2 class="text-sm font-semibold text-slate-200">기능 테스트 01</h2>
+                        </div>
+                        <span id="label1" class="mono text-slate-500">대기 중</span>
+                    </div>
+                    <div class="progress-track rounded-full mb-3">
+                        <div id="bar1" class="progress-fill"></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-[11px] text-slate-500">클릭하여 활성화 상태를 테스트합니다.</p>
+                        <span id="percent1" class="mono text-blue-500 opacity-0 transition-opacity">0%</span>
                     </div>
                 </div>
+
+                <!-- 테스트 02 -->
+                <div id="module2" class="module-card p-6 rounded-2xl group">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-3">
+                            <div id="dot2" class="status-dot"></div>
+                            <h2 class="text-sm font-semibold text-slate-200">기능 테스트 02</h2>
+                        </div>
+                        <span id="label2" class="mono text-slate-500">대기 중</span>
+                    </div>
+                    <div class="progress-track rounded-full mb-3">
+                        <div id="bar2" class="progress-fill" style="background: #10b981;"></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-[11px] text-slate-500">데이터 시뮬레이션 및 응답을 확인합니다.</p>
+                        <span id="percent2" class="mono text-emerald-500 opacity-0 transition-opacity">0%</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 푸터 -->
+            <div class="mt-10 flex justify-between items-center pt-6 border-t border-white/5">
+                <p class="text-[10px] text-slate-500 mono">STATUS: STABLE</p>
+                <p class="text-[10px] text-slate-500 mono">VER: DEMO-1.0</p>
             </div>
         </div>
-
-        <!-- Footer / Status -->
-        <footer class="mt-12 pt-8 border-t border-white/5 flex flex-col items-center space-y-4 relative z-10">
-            <div class="flex items-center space-x-4">
-                <div class="flex items-center px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                    <span class="relative flex h-2 w-2 mr-3">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span class="text-emerald-400 text-xs font-semibold">K8S OPERATIONAL</span>
-                </div>
-                <div class="text-white/20 text-[10px] font-mono">NODE_SYNC: OK</div>
-            </div>
-            
-            <p class="text-white/30 text-[11px] text-center max-w-xs leading-relaxed">
-                This instance is orchestrated by <strong>Cocktail Cloud</strong>.<br>
-                Containerized environment verified.
-            </p>
-        </footer>
     </div>
 
-    <!-- Background Decoration -->
-    <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden opacity-20 -z-10">
-        <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600 rounded-full mix-blend-screen filter blur-[120px]"></div>
-        <div class="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-indigo-800 rounded-full mix-blend-screen filter blur-[100px]"></div>
-    </div>
+    <script>
+        const handleInteraction = (cardId, barId, dotId, labelId, percentId, activeClass) => {
+            const card = document.getElementById(cardId);
+            const bar = document.getElementById(barId);
+            const dot = document.getElementById(dotId);
+            const label = document.getElementById(labelId);
+            const percent = document.getElementById(percentId);
+
+            let active = false;
+            let timer = null;
+
+            card.onclick = () => {
+                active = !active;
+                card.classList.toggle('active');
+
+                if (active) {
+                    dot.classList.add(activeClass);
+                    bar.style.width = '100%';
+                    label.innerText = "동작 중";
+                    label.classList.add(activeClass.replace('active-', 'text-'));
+                    percent.classList.remove('opacity-0');
+                    
+                    let p = 0;
+                    timer = setInterval(() => {
+                        p += Math.floor(Math.random() * 20);
+                        if(p >= 100) {
+                            p = 100;
+                            percent.innerText = "완료";
+                            clearInterval(timer);
+                        } else {
+                            percent.innerText = p + "%";
+                        }
+                    }, 80);
+                } else {
+                    clearInterval(timer);
+                    dot.classList.remove(activeClass);
+                    bar.style.width = '0%';
+                    label.innerText = "대기 중";
+                    label.classList.remove(activeClass.replace('active-', 'text-'));
+                    percent.classList.add('opacity-0');
+                    percent.innerText = "0%";
+                }
+            };
+        };
+
+        handleInteraction('module1', 'bar1', 'dot1', 'label1', 'percent1', 'active-blue');
+        handleInteraction('module2', 'bar2', 'dot2', 'label2', 'percent2', 'active-emerald');
+    </script>
 </body>
 </html>
