@@ -1,3 +1,5 @@
+package com.example.demo; // <-- 이 줄이 반드시 파일 맨 위에 있어야 합니다!
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
