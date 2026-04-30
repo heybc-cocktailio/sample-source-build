@@ -27,7 +27,6 @@
             overflow: hidden;
         }
 
-        /* 배경 아우라 애니메이션 */
         .aura-container {
             position: fixed;
             width: 100vw;
@@ -128,6 +127,14 @@
         .status-dot.active-emerald { background: #10b981; box-shadow: 0 0 12px #10b981; }
 
         .mono { font-family: 'Space Grotesk', monospace; font-size: 11px; }
+        
+        /* 인프라 정보 스타일 */
+        .infra-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 12px;
+        }
     </style>
 </head>
 <body>
@@ -142,12 +149,11 @@
     <div class="relative z-10 w-full max-w-lg px-6">
         <div class="glass-panel rounded-3xl p-10 overflow-hidden relative">
             
-            <!-- 헤더 -->
             <div class="flex items-center justify-between mb-10">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
                         <span class="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                        <span class="text-[9px] font-bold tracking-[0.2em] text-blue-400 uppercase">Test Mode Active</span>
+                        <span class="text-[9px] font-bold tracking-[0.2em] text-blue-400 uppercase">System Active</span>
                     </div>
                     <h1 class="text-4xl font-extrabold tracking-tighter">
                         COCKTAIL<span class="text-blue-500">.IO</span>
@@ -155,10 +161,7 @@
                 </div>
             </div>
 
-            <!-- 테스트 모듈 -->
             <div class="space-y-4">
-                
-                <!-- 테스트 01 -->
                 <div id="module1" class="module-card p-6 rounded-2xl group">
                     <div class="flex justify-between items-center mb-4">
                         <div class="flex items-center gap-3">
@@ -176,7 +179,6 @@
                     </div>
                 </div>
 
-                <!-- 테스트 02 -->
                 <div id="module2" class="module-card p-6 rounded-2xl group">
                     <div class="flex justify-between items-center mb-4">
                         <div class="flex items-center gap-3">
@@ -193,11 +195,31 @@
                         <span id="percent2" class="mono text-emerald-500 opacity-0 transition-opacity">0%</span>
                     </div>
                 </div>
-
             </div>
 
-            <!-- 푸터 -->
-            <div class="mt-10 flex justify-between items-center pt-6 border-t border-white/5">
+            <div class="mt-8 space-y-2">
+                <p class="text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase ml-1">Infrastructure Metadata</p>
+                <div class="infra-badge mono text-[10px] space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">CLUSTER ID</span>
+                        <span id="res-cluster-id" class="text-blue-400">CONNECTING...</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">NODE IP</span>
+                        <span id="res-node-ip" class="text-slate-300">WAITING...</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">POD NAME</span>
+                        <span id="res-pod-name" class="text-slate-300">WAITING...</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">POD IP</span>
+                        <span id="res-pod-ip" class="text-slate-300">WAITING...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-between items-center pt-6 border-t border-white/5">
                 <p class="text-[10px] text-slate-500 mono">STATUS: STABLE</p>
                 <p class="text-[10px] text-slate-500 mono">VER: DEMO-1.0</p>
             </div>
@@ -205,6 +227,7 @@
     </div>
 
     <script>
+        // --- 기존 인터랙션 스크립트 ---
         const handleInteraction = (cardId, barId, dotId, labelId, percentId, activeClass) => {
             const card = document.getElementById(cardId);
             const bar = document.getElementById(barId);
@@ -251,6 +274,31 @@
 
         handleInteraction('module1', 'bar1', 'dot1', 'label1', 'percent1', 'active-blue');
         handleInteraction('module2', 'bar2', 'dot2', 'label2', 'percent2', 'active-emerald');
+
+        // --- 3단계: API를 통해 데이터를 가져오는 로직 추가 ---
+        async function loadK8sMetadata() {
+            try {
+                // 1단계에서 만든 자바 API 주소를 호출합니다.
+                const response = await fetch('/api/k8s-info');
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+
+                // 화면의 엘리먼트들에 값을 채워넣습니다.
+                document.getElementById('res-cluster-id').innerText = data.clusterId || 'N/A';
+                document.getElementById('res-node-ip').innerText = data.nodeIp || 'Unknown';
+                document.getElementById('res-pod-name').innerText = data.podName || 'Local-Environment';
+                document.getElementById('res-pod-ip').innerText = data.podIp || '127.0.0.1';
+                
+            } catch (error) {
+                console.error('Error fetching K8s info:', error);
+                document.getElementById('res-cluster-id').innerText = 'OFFLINE';
+                document.getElementById('res-cluster-id').classList.add('text-red-500');
+            }
+        }
+
+        // 페이지 로드 시 즉시 실행
+        loadK8sMetadata();
     </script>
 </body>
 </html>
