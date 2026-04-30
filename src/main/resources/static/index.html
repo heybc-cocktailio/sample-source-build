@@ -128,7 +128,6 @@
 
         .mono { font-family: 'Space Grotesk', monospace; font-size: 11px; }
         
-        /* 인프라 정보 스타일 */
         .infra-badge {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -201,12 +200,8 @@
                 <p class="text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase ml-1">Infrastructure Metadata</p>
                 <div class="infra-badge mono text-[10px] space-y-2">
                     <div class="flex justify-between items-center">
-                        <span class="text-slate-500">CLUSTER ID</span>
-                        <span id="res-cluster-id" class="text-blue-400">CONNECTING...</span>
-                    </div>
-                    <div class="flex justify-between items-center">
                         <span class="text-slate-500">NODE IP</span>
-                        <span id="res-node-ip" class="text-slate-300">WAITING...</span>
+                        <span id="res-node-ip" class="text-blue-400">WAITING...</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-slate-500">POD NAME</span>
@@ -214,7 +209,7 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-slate-500">POD IP</span>
-                        <span id="res-pod-ip" class="text-slate-300">WAITING...</span>
+                        <span id="res-pod-ip" class="text-slate-300 font-bold">WAITING...</span>
                     </div>
                 </div>
             </div>
@@ -227,7 +222,6 @@
     </div>
 
     <script>
-        // --- 기존 인터랙션 스크립트 ---
         const handleInteraction = (cardId, barId, dotId, labelId, percentId, activeClass) => {
             const card = document.getElementById(cardId);
             const bar = document.getElementById(barId);
@@ -275,29 +269,26 @@
         handleInteraction('module1', 'bar1', 'dot1', 'label1', 'percent1', 'active-blue');
         handleInteraction('module2', 'bar2', 'dot2', 'label2', 'percent2', 'active-emerald');
 
-        // --- 3단계: API를 통해 데이터를 가져오는 로직 추가 ---
         async function loadK8sMetadata() {
             try {
-                // 1단계에서 만든 자바 API 주소를 호출합니다.
                 const response = await fetch('/api/k8s-info');
                 if (!response.ok) throw new Error('Network response was not ok');
                 
                 const data = await response.json();
 
-                // 화면의 엘리먼트들에 값을 채워넣습니다.
-                document.getElementById('res-cluster-id').innerText = data.clusterId || 'N/A';
+                // Cluster ID를 제외한 나머지 정보 매핑
                 document.getElementById('res-node-ip').innerText = data.nodeIp || 'Unknown';
                 document.getElementById('res-pod-name').innerText = data.podName || 'Local-Environment';
                 document.getElementById('res-pod-ip').innerText = data.podIp || '127.0.0.1';
                 
             } catch (error) {
                 console.error('Error fetching K8s info:', error);
-                document.getElementById('res-cluster-id').innerText = 'OFFLINE';
-                document.getElementById('res-cluster-id').classList.add('text-red-500');
+                // 에러 발생 시 시각적 표시 (Node IP 항목에 표시)
+                document.getElementById('res-node-ip').innerText = 'OFFLINE';
+                document.getElementById('res-node-ip').classList.add('text-red-500');
             }
         }
 
-        // 페이지 로드 시 즉시 실행
         loadK8sMetadata();
     </script>
 </body>
